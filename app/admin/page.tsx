@@ -98,19 +98,19 @@ export default function AdminPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow max-w-md w-full">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          <h2 className="text-2xl font-bold text-black mb-6 text-center">
             Admin Login
           </h2>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-black mb-1">
                 Password
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                 placeholder="Enter admin password"
                 required
               />
@@ -122,7 +122,7 @@ export default function AdminPage() {
               Login
             </button>
           </form>
-          <p className="text-xs text-gray-500 mt-4 text-center">
+          <p className="text-xs text-black mt-4 text-center">
             Demo password: admin123
           </p>
         </div>
@@ -135,7 +135,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading bookings...</p>
+          <p className="text-black">Loading bookings...</p>
         </div>
       </div>
     );
@@ -147,7 +147,7 @@ export default function AdminPage() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl font-bold text-black">
               Admin Dashboard
             </h1>
             <div className="space-x-4">
@@ -172,23 +172,23 @@ export default function AdminPage() {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Bookings</h3>
+            <h3 className="text-lg font-semibold text-black mb-2">Total Bookings</h3>
             <p className="text-3xl font-bold text-blue-600">{bookings.length}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirmed</h3>
+            <h3 className="text-lg font-semibold text-black mb-2">Confirmed</h3>
             <p className="text-3xl font-bold text-green-600">
               {bookings.filter(b => b.status === 'CONFIRMED').length}
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Pending Payment</h3>
+            <h3 className="text-lg font-semibold text-black mb-2">Pending Payment</h3>
             <p className="text-3xl font-bold text-yellow-600">
               {bookings.filter(b => b.status === 'PENDING_PAYMENT').length}
             </p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Revenue</h3>
+            <h3 className="text-lg font-semibold text-black mb-2">Total Revenue</h3>
             <p className="text-3xl font-bold text-green-600">
               ₱{bookings.reduce((sum, b) => sum + b.totalAmount, 0).toLocaleString()}
             </p>
@@ -198,31 +198,31 @@ export default function AdminPage() {
         {/* Bookings Table */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Bookings</h2>
+            <h2 className="text-lg font-semibold text-black">Recent Bookings</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                     Booking
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                     Guest
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                     Room
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                     Dates
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                     Amount
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
                     Payment
                   </th>
                 </tr>
@@ -231,31 +231,31 @@ export default function AdminPage() {
                 {bookings.map((booking) => (
                   <tr key={booking.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-black">
                         {booking.bookingReference}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-black">
                           {booking.guestName}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-black">
                           {booking.guestEmail}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-black">
                         {booking.room.name}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-black">
                         {booking.numberOfAdults} adults, {booking.numberOfChildren} children
                         {booking.extraAdults > 0 && `, ${booking.extraAdults} extra`}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-black">
                         {new Date(booking.checkInDate).toLocaleDateString()}
                       </div>
                       <div className="text-xs text-blue-600">
@@ -263,7 +263,7 @@ export default function AdminPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-black">
                         ₱{booking.totalAmount.toLocaleString()}
                       </div>
                     </td>
@@ -278,12 +278,12 @@ export default function AdminPage() {
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPaymentStatusColor(booking.payments[0].status)}`}>
                             {booking.payments[0].status}
                           </span>
-                          <div className="text-xs text-gray-500 mt-1">
+                          <div className="text-xs text-black mt-1">
                             {booking.payments[0].paymentMethod}
                           </div>
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-500">No payment</span>
+                        <span className="text-sm text-black">No payment</span>
                       )}
                     </td>
                   </tr>
@@ -295,7 +295,7 @@ export default function AdminPage() {
 
         {bookings.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No bookings found.</p>
+            <p className="text-black">No bookings found.</p>
             <Link
               href="/book"
               className="text-blue-600 hover:text-blue-800 mt-2 inline-block"
