@@ -9,38 +9,47 @@ export async function POST(request: NextRequest) {
       guestEmail,
       guestPhone,
       checkInDate,
-      checkOutDate,
-      numberOfGuests,
+      duration,
+      numberOfAdults,
+      numberOfChildren,
+      extraAdults,
       specialRequests,
       roomId,
-      totalAmount,
     } = body;
 
     // Validate required fields
-    if (!guestName || !guestEmail || !checkInDate || !checkOutDate || !roomId || !totalAmount) {
+    if (!guestName || !guestEmail || !checkInDate || !roomId || !duration) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Check for booking conflicts
+    // Get room details for pricing calculation
+    const room = await prisma.room.findUnique({
+      where: { id: parseInt(roomId) }
+    });
+
+    if (!room) {
+      return NextResponse.json(
+        { error: 'Room not found' },
+        { status: 404 }
+      );
+    }
+
+    // Calculate total amount based on duration and extra adults
+    const basePrice = duration === 24 ? room.basePrice24h : room.basePrice12h;
+    const extraAdultCost = (extraAdults || 0) * room.extraAdultPrice;
+    const totalAmount = Number(basePrice) + extraAdultCost;
+
+    // Check for booking conflicts - check if there's already a booking on the same date
     const conflictingBookings = await prisma.booking.findMany({
       where: {
         roomId: parseInt(roomId),
         status: {
           in: ['CONFIRMED', 'PENDING_PAYMENT'],
         },
-        OR: [
-          {
-            checkInDate: {
-              lte: new Date(checkOutDate),
-            },
-            checkOutDate: {
-              gte: new Date(checkInDate),
-            },
-          },
-        ],
+        checkInDate: new Date(checkInDate),
       },
     });
 
@@ -62,9 +71,11 @@ export async function POST(request: NextRequest) {
         guestEmail,
         guestPhone: guestPhone || null,
         checkInDate: new Date(checkInDate),
-        checkOutDate: new Date(checkOutDate),
-        numberOfGuests: parseInt(numberOfGuests) || 1,
-        totalAmount: parseFloat(totalAmount),
+        duration: parseInt(duration) || 12,
+        numberOfAdults: parseInt(numberOfAdults) || 2,
+        numberOfChildren: parseInt(numberOfChildren) || 0,
+        extraAdults: parseInt(extraAdults) || 0,
+        totalAmount: totalAmount,
         status: 'DRAFT',
         specialRequests: specialRequests || null,
         roomId: parseInt(roomId),
@@ -75,7 +86,7 @@ export async function POST(request: NextRequest) {
     const payment = await prisma.payment.create({
       data: {
         bookingId: booking.id,
-        amount: parseFloat(totalAmount),
+        amount: totalAmount,
         currency: 'PHP',
         paymentMethod: 'CASH_ON_ARRIVAL', // Default for now
         status: 'PENDING',

@@ -41,16 +41,16 @@ export default function Home() {
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">5 Rooms Available</h3>
-            <p className="text-gray-600">From budget to executive suites</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Flexible Rates</h3>
+            <p className="text-black">₱1,000 for 12h or ₱1,800 for 24h</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Up to 21 Guests</h3>
-            <p className="text-gray-600">Perfect for families and groups</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Up to 4 Guests</h3>
+            <p className="text-black">2 adults + 2 children under 10 free</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">24/7 Support</h3>
-            <p className="text-gray-600">We're here to help you</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Extra Adults</h3>
+            <p className="text-black">Only ₱300 per additional adult</p>
           </div>
         </div>
 
@@ -60,19 +60,19 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h4 className="font-semibold text-gray-900 mb-2">✓ Free WiFi</h4>
-              <p className="text-gray-600">Stay connected during your stay</p>
+              <p className="text-black">Stay connected during your stay</p>
             </div>
             <div>
               <h4 className="font-semibold text-gray-900 mb-2">✓ Air Conditioning</h4>
-              <p className="text-gray-600">Comfortable temperature control</p>
+              <p className="text-black">Comfortable temperature control</p>
             </div>
             <div>
               <h4 className="font-semibold text-gray-900 mb-2">✓ Flexible Payment</h4>
-              <p className="text-gray-600">GCash, cards, or cash on arrival</p>
+              <p className="text-black">GCash, cards, or cash on arrival</p>
             </div>
             <div>
               <h4 className="font-semibold text-gray-900 mb-2">✓ Easy Booking</h4>
-              <p className="text-gray-600">Simple online reservation system</p>
+              <p className="text-black">Simple online reservation system</p>
             </div>
           </div>
         </div>

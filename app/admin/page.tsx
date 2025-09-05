@@ -9,8 +9,10 @@ interface Booking {
   guestName: string;
   guestEmail: string;
   checkInDate: string;
-  checkOutDate: string;
-  numberOfGuests: number;
+  duration: number;
+  numberOfAdults: number;
+  numberOfChildren: number;
+  extraAdults: number;
   totalAmount: number;
   status: string;
   specialRequests: string | null;
@@ -248,15 +250,16 @@ export default function AdminPage() {
                         {booking.room.name}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {booking.numberOfGuests} guest{booking.numberOfGuests > 1 ? 's' : ''}
+                        {booking.numberOfAdults} adults, {booking.numberOfChildren} children
+                        {booking.extraAdults > 0 && `, ${booking.extraAdults} extra`}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {new Date(booking.checkInDate).toLocaleDateString()}
                       </div>
-                      <div className="text-sm text-gray-500">
-                        to {new Date(booking.checkOutDate).toLocaleDateString()}
+                      <div className="text-xs text-blue-600">
+                        {booking.duration} hours from check-in
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

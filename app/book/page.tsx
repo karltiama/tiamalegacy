@@ -8,7 +8,9 @@ interface Room {
   name: string;
   description: string | null;
   capacity: number;
-  basePrice: number;
+  basePrice12h: number;
+  basePrice24h: number;
+  extraAdultPrice: number;
   amenities: string[];
 }
 
@@ -21,8 +23,10 @@ export default function BookPage() {
     guestEmail: '',
     guestPhone: '',
     checkInDate: '',
-    checkOutDate: '',
-    numberOfGuests: 1,
+    duration: 12,
+    numberOfAdults: 2,
+    numberOfChildren: 0,
+    extraAdults: 0,
     specialRequests: ''
   });
   const [submitting, setSubmitting] = useState(false);
@@ -51,9 +55,13 @@ export default function BookPage() {
 
   const handleRoomSelect = (room: Room) => {
     setSelectedRoom(room);
+    // Reset to default values when room is selected
     setBookingData(prev => ({
       ...prev,
-      numberOfGuests: Math.min(prev.numberOfGuests, room.capacity)
+      numberOfAdults: 2,
+      numberOfChildren: 0,
+      extraAdults: 0,
+      duration: 12
     }));
   };
 
@@ -61,16 +69,15 @@ export default function BookPage() {
     const { name, value } = e.target;
     setBookingData(prev => ({
       ...prev,
-      [name]: name === 'numberOfGuests' ? parseInt(value) : value
+      [name]: ['duration', 'numberOfAdults', 'numberOfChildren', 'extraAdults'].includes(name) ? parseInt(value) : value
     }));
   };
 
   const calculateTotal = () => {
     if (!selectedRoom) return 0;
-    const checkIn = new Date(bookingData.checkInDate);
-    const checkOut = new Date(bookingData.checkOutDate);
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
-    return nights * Number(selectedRoom.basePrice);
+    const basePrice = bookingData.duration === 24 ? selectedRoom.basePrice24h : selectedRoom.basePrice12h;
+    const extraAdultCost = bookingData.extraAdults * selectedRoom.extraAdultPrice;
+    return Number(basePrice) + extraAdultCost;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,7 +94,6 @@ export default function BookPage() {
         body: JSON.stringify({
           ...bookingData,
           roomId: selectedRoom.id,
-          totalAmount: calculateTotal(),
         }),
       });
 
@@ -111,7 +117,7 @@ export default function BookPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading rooms...</p>
+          <p className="text-black">Loading rooms...</p>
         </div>
       </div>
     );
@@ -122,13 +128,12 @@ export default function BookPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white p-8 rounded-lg shadow max-w-md w-full text-center">
           <div className="text-green-600 text-6xl mb-4">✓</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Booking Confirmed!</h2>
+          <h2 className="text-2xl font-bold text-black mb-4">Booking Confirmed!</h2>
           <div className="text-left space-y-2 mb-6">
             <p><strong>Booking Reference:</strong> {bookingResult.bookingReference}</p>
             <p><strong>Room:</strong> {selectedRoom?.name}</p>
             <p><strong>Guest:</strong> {bookingData.guestName}</p>
             <p><strong>Check-in:</strong> {bookingData.checkInDate}</p>
-            <p><strong>Check-out:</strong> {bookingData.checkOutDate}</p>
             <p><strong>Total:</strong> ₱{calculateTotal().toLocaleString()}</p>
           </div>
           <div className="space-y-2">
@@ -156,7 +161,7 @@ export default function BookPage() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <Link href="/" className="text-2xl font-bold text-gray-900">
+            <Link href="/" className="text-2xl font-bold text-black">
               Rest Stop Booking
             </Link>
             <Link 
@@ -173,7 +178,7 @@ export default function BookPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Room Selection */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Select a Room</h2>
+            <h2 className="text-2xl font-bold text-black mb-6">Select a Room</h2>
             <div className="space-y-4">
               {rooms.map((room) => (
                 <div
@@ -187,14 +192,14 @@ export default function BookPage() {
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <h3 className="font-semibold text-gray-900">{room.name}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{room.description}</p>
-                      <p className="text-sm text-gray-600">Capacity: {room.capacity} guests</p>
+                      <h3 className="font-semibold text-black">{room.name}</h3>
+                      <p className="text-sm text-black mb-2">{room.description}</p>
+                      <p className="text-sm text-black">Max capacity: {room.capacity} persons</p>
                       <div className="flex flex-wrap gap-1 mt-2">
                         {room.amenities.map((amenity, index) => (
                           <span
                             key={index}
-                            className="px-2 py-1 bg-gray-100 text-xs text-gray-600 rounded"
+                            className="px-2 py-1 bg-gray-100 text-xs text-black rounded"
                           >
                             {amenity}
                           </span>
@@ -202,8 +207,19 @@ export default function BookPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-gray-900">₱{room.basePrice.toLocaleString()}</p>
-                      <p className="text-sm text-gray-600">per night</p>
+                      <div className="space-y-1">
+                        <div>
+                          <p className="text-lg font-bold text-black">₱{room.basePrice12h.toLocaleString()}</p>
+                          <p className="text-sm text-black">12 hours</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold text-black">₱{room.basePrice24h.toLocaleString()}</p>
+                          <p className="text-sm text-black">24 hours</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-black">+₱{room.extraAdultPrice.toLocaleString()} per extra adult</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -213,11 +229,11 @@ export default function BookPage() {
 
           {/* Booking Form */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Booking Details</h2>
+            <h2 className="text-2xl font-bold text-black mb-6">Booking Details</h2>
             {selectedRoom ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Guest Name
                   </label>
                   <input
@@ -226,12 +242,12 @@ export default function BookPage() {
                     value={bookingData.guestName}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Email
                   </label>
                   <input
@@ -240,12 +256,12 @@ export default function BookPage() {
                     value={bookingData.guestEmail}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Phone
                   </label>
                   <input
@@ -253,60 +269,93 @@ export default function BookPage() {
                     name="guestPhone"
                     value={bookingData.guestPhone}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Check-in Date
-                    </label>
-                    <input
-                      type="date"
-                      name="checkInDate"
-                      value={bookingData.checkInDate}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Check-out Date
-                    </label>
-                    <input
-                      type="date"
-                      name="checkOutDate"
-                      value={bookingData.checkOutDate}
-                      onChange={handleInputChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-1">
+                    Check-in Date
+                  </label>
+                  <input
+                    type="date"
+                    name="checkInDate"
+                    value={bookingData.checkInDate}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                  />
+                  <p className="text-sm text-black mt-1">
+                    You can check in anytime on this date
+                  </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Number of Guests
+                  <label className="block text-sm font-medium text-black mb-1">
+                    Duration
                   </label>
                   <select
-                    name="numberOfGuests"
-                    value={bookingData.numberOfGuests}
+                    name="duration"
+                    value={bookingData.duration}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                   >
-                    {Array.from({ length: selectedRoom.capacity }, (_, i) => i + 1).map((num) => (
-                      <option key={num} value={num}>
-                        {num} guest{num > 1 ? 's' : ''}
-                      </option>
-                    ))}
+                    <option value={12}>12 hours (₱{selectedRoom?.basePrice12h.toLocaleString()})</option>
+                    <option value={24}>24 hours (₱{selectedRoom?.basePrice24h.toLocaleString()})</option>
                   </select>
                 </div>
 
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">
+                      Adults
+                    </label>
+                    <select
+                      name="numberOfAdults"
+                      value={bookingData.numberOfAdults}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                    >
+                      <option value={1}>1 adult</option>
+                      <option value={2}>2 adults (included)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">
+                      Children (under 10)
+                    </label>
+                    <select
+                      name="numberOfChildren"
+                      value={bookingData.numberOfChildren}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                    >
+                      <option value={0}>0 children</option>
+                      <option value={1}>1 child</option>
+                      <option value={2}>2 children</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-1">
+                      Extra Adults (beyond 2)
+                    </label>
+                    <select
+                      name="extraAdults"
+                      value={bookingData.extraAdults}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                    >
+                      <option value={0}>0 extra</option>
+                      <option value={1}>1 extra (+₱{selectedRoom?.extraAdultPrice.toLocaleString()})</option>
+                      <option value={2}>2 extra (+₱{selectedRoom ? (selectedRoom.extraAdultPrice * 2).toLocaleString() : '0'})</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-black mb-1">
                     Special Requests
                   </label>
                   <textarea
@@ -314,50 +363,52 @@ export default function BookPage() {
                     value={bookingData.specialRequests}
                     onChange={handleInputChange}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
                   />
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-gray-900 mb-2">Booking Summary</h3>
-                  <div className="space-y-1 text-sm">
+                  <h3 className="font-semibold text-black mb-2">Booking Summary</h3>
+                  <div className="space-y-1 text-sm text-black">
                     <div className="flex justify-between">
-                      <span>Room:</span>
-                      <span>{selectedRoom.name}</span>
+                      <span className="text-black">Room:</span>
+                      <span className="text-black">{selectedRoom.name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Price per night:</span>
-                      <span>₱{selectedRoom.basePrice.toLocaleString()}</span>
+                      <span className="text-black">Check-in:</span>
+                      <span className="text-black">{bookingData.checkInDate}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Nights:</span>
-                      <span>
-                        {bookingData.checkInDate && bookingData.checkOutDate
-                          ? Math.ceil(
-                              (new Date(bookingData.checkOutDate).getTime() - 
-                               new Date(bookingData.checkInDate).getTime()) / 
-                              (1000 * 60 * 60 * 24)
-                            )
-                          : 0}
-                      </span>
+                      <span className="text-black">Duration:</span>
+                      <span className="text-black">{bookingData.duration} hours - ₱{bookingData.duration === 24 ? selectedRoom.basePrice24h.toLocaleString() : selectedRoom.basePrice12h.toLocaleString()}</span>
+                    </div>
+                    {bookingData.extraAdults > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-black">Extra adults ({bookingData.extraAdults}):</span>
+                        <span className="text-black">₱{(bookingData.extraAdults * selectedRoom.extraAdultPrice).toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-black">Guests:</span>
+                      <span className="text-black">{bookingData.numberOfAdults} adults, {bookingData.numberOfChildren} children</span>
                     </div>
                     <div className="flex justify-between font-bold text-lg border-t pt-2">
-                      <span>Total:</span>
-                      <span>₱{calculateTotal().toLocaleString()}</span>
+                      <span className="text-black">Total:</span>
+                      <span className="text-black">₱{calculateTotal().toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={submitting || !bookingData.guestName || !bookingData.guestEmail || !bookingData.checkInDate || !bookingData.checkOutDate}
+                  disabled={submitting || !bookingData.guestName || !bookingData.guestEmail || !bookingData.checkInDate}
                   className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   {submitting ? 'Creating Booking...' : 'Book Now'}
                 </button>
               </form>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="text-center py-8 text-black">
                 <p>Please select a room to continue with your booking.</p>
               </div>
             )}
@@ -367,3 +418,4 @@ export default function BookPage() {
     </div>
   );
 }
+

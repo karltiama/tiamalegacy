@@ -35,11 +35,13 @@ enum PaymentMethod {
 
 model Room {
   id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  capacity    Int      @default(2)
-  basePrice   Decimal  @map("base_price") @db.Decimal(10, 2)
-  amenities   String[]
+  name        String   @default("Standard Room")
+  description String?  @default("Comfortable room for rest stop guests")
+  capacity    Int      @default(4) // Max 4 persons
+  basePrice12h Decimal @map("base_price_12h") @db.Decimal(10, 2) // 12 hour rate
+  basePrice24h Decimal @map("base_price_24h") @db.Decimal(10, 2) // 24 hour rate
+  extraAdultPrice Decimal @map("extra_adult_price") @db.Decimal(10, 2) // Extra adult rate
+  amenities   String[] @default(["WiFi", "Air Conditioning", "Private Bathroom", "TV"])
   isActive    Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -57,8 +59,10 @@ model Booking {
   guestEmail       String        @map("guest_email")
   guestPhone       String?       @map("guest_phone")
   checkInDate      DateTime      @map("check_in_date") @db.Date
-  checkOutDate     DateTime      @map("check_out_date") @db.Date
-  numberOfGuests   Int           @default(1) @map("number_of_guests")
+  duration         Int           @default(12) // 12 or 24 hours
+  numberOfAdults   Int           @default(2) @map("number_of_adults")
+  numberOfChildren Int           @default(0) @map("number_of_children")
+  extraAdults      Int           @default(0) @map("extra_adults")
   totalAmount      Decimal       @map("total_amount") @db.Decimal(10, 2)
   status           BookingStatus @default(DRAFT)
   specialRequests  String?       @map("special_requests")
@@ -72,7 +76,6 @@ model Booking {
 
   @@index([roomId])
   @@index([checkInDate])
-  @@index([checkOutDate])
   @@index([status])
   @@map("bookings")
 }

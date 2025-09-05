@@ -5,56 +5,20 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...');
 
-  // Create sample rooms
-  const rooms = await Promise.all([
-    prisma.room.create({
-      data: {
-        name: 'Standard Room',
-        description: 'Comfortable room with basic amenities',
-        capacity: 2,
-        basePrice: 1500.00,
-        amenities: ['WiFi', 'Air Conditioning', 'Private Bathroom'],
-      },
-    }),
-    prisma.room.create({
-      data: {
-        name: 'Deluxe Room',
-        description: 'Spacious room with premium amenities',
-        capacity: 4,
-        basePrice: 2500.00,
-        amenities: ['WiFi', 'Air Conditioning', 'Private Bathroom', 'Mini Fridge', 'TV'],
-      },
-    }),
-    prisma.room.create({
-      data: {
-        name: 'Family Suite',
-        description: 'Large suite perfect for families',
-        capacity: 6,
-        basePrice: 3500.00,
-        amenities: ['WiFi', 'Air Conditioning', 'Private Bathroom', 'Mini Fridge', 'TV', 'Kitchenette'],
-      },
-    }),
-    prisma.room.create({
-      data: {
-        name: 'Budget Room',
-        description: 'Affordable option for budget travelers',
-        capacity: 2,
-        basePrice: 1000.00,
-        amenities: ['WiFi', 'Shared Bathroom'],
-      },
-    }),
-    prisma.room.create({
-      data: {
-        name: 'Executive Room',
-        description: 'Premium room with business amenities',
-        capacity: 2,
-        basePrice: 3000.00,
-        amenities: ['WiFi', 'Air Conditioning', 'Private Bathroom', 'Mini Fridge', 'TV', 'Work Desk'],
-      },
-    }),
-  ]);
+  // Create single room with hourly rates
+  const room = await prisma.room.create({
+    data: {
+      name: 'Standard Room',
+      description: 'Comfortable room for rest stop guests - includes 2 adults and up to 2 children under 10',
+      capacity: 4, // Max 4 persons
+      basePrice12h: 1000.00, // 12 hours
+      basePrice24h: 1800.00, // 24 hours
+      extraAdultPrice: 300.00, // Extra adults
+      amenities: ['WiFi', 'Air Conditioning', 'Private Bathroom', 'TV'],
+    },
+  });
 
-  console.log(`✅ Created ${rooms.length} rooms`);
+  console.log(`✅ Created room: ${room.name}`);
 
   // Create sample booking
   const sampleBooking = await prisma.booking.create({
@@ -64,12 +28,14 @@ async function main() {
       guestEmail: 'juan@example.com',
       guestPhone: '+63 912 345 6789',
       checkInDate: new Date('2024-12-15'),
-      checkOutDate: new Date('2024-12-17'),
-      numberOfGuests: 2,
-      totalAmount: 3000.00,
+      duration: 12,
+      numberOfAdults: 2,
+      numberOfChildren: 1,
+      extraAdults: 0,
+      totalAmount: 1000.00, // 12-hour rate
       status: 'CONFIRMED',
       specialRequests: 'Late check-in requested',
-      roomId: rooms[0].id,
+      roomId: room.id,
     },
   });
 
@@ -79,7 +45,7 @@ async function main() {
   await prisma.payment.create({
     data: {
       bookingId: sampleBooking.id,
-      amount: 3000.00,
+      amount: 1000.00,
       currency: 'PHP',
       paymentMethod: 'GCASH',
       status: 'COMPLETED',
