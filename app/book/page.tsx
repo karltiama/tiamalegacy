@@ -27,7 +27,8 @@ export default function BookPage() {
     numberOfAdults: 2,
     numberOfChildren: 0,
     extraAdults: 0,
-    specialRequests: ''
+    specialRequests: '',
+    paymentMethod: 'cash',
   });
   const [submitting, setSubmitting] = useState(false);
   const [bookingResult, setBookingResult] = useState<any>(null);
@@ -100,9 +101,18 @@ export default function BookPage() {
       if (response.ok) {
         const result = await response.json();
         setBookingResult(result);
+        
+        // If online payment, redirect to PayMongo payment page
+        if (bookingData.paymentMethod === 'online' && result.paymentIntent) {
+          // For now, just show success message
+          // In production, you would redirect to PayMongo's payment page
+          alert(`Booking created! Payment Intent ID: ${result.paymentIntent.id}`);
+        } else if (bookingData.paymentMethod === 'cash') {
+          alert(`Booking created! Please pay ₱${calculateTotal().toLocaleString()} in cash when you arrive.`);
+        }
       } else {
         const error = await response.json();
-        alert(`Booking failed: ${error.message}`);
+        alert(`Booking failed: ${error.error || error.message}`);
       }
     } catch (error) {
       console.error('Error creating booking:', error);
@@ -367,6 +377,42 @@ export default function BookPage() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-black mb-1">
+                    Payment Method
+                  </label>
+                  <select
+                    name="paymentMethod"
+                    value={bookingData.paymentMethod}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+                  >
+                    <option value="cash">Cash on Arrival</option>
+                    <option value="online" disabled>Online Payment (Coming Soon)</option>
+                  </select>
+                  <p className="text-xs text-black mt-1">
+                    Pay in cash when you arrive at the rest stop
+                  </p>
+                  
+                  {/* Coming Soon Banner */}
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm text-blue-800">
+                          <span className="font-medium">Online Payment Coming Soon!</span> 
+                          <br />
+                          We're working on adding GCash and card payments. For now, please pay in cash when you arrive.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="font-semibold text-black mb-2">Booking Summary</h3>
                   <div className="space-y-1 text-sm text-black">
@@ -391,6 +437,10 @@ export default function BookPage() {
                     <div className="flex justify-between">
                       <span className="text-black">Guests:</span>
                       <span className="text-black">{bookingData.numberOfAdults} adults, {bookingData.numberOfChildren} children</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-black">Payment:</span>
+                      <span className="text-black">{bookingData.paymentMethod === 'online' ? 'Online Payment' : 'Cash on Arrival'}</span>
                     </div>
                     <div className="flex justify-between font-bold text-lg border-t pt-2">
                       <span className="text-black">Total:</span>

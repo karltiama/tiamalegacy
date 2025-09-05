@@ -66,6 +66,7 @@ model Booking {
   totalAmount      Decimal       @map("total_amount") @db.Decimal(10, 2)
   status           BookingStatus @default(DRAFT)
   specialRequests  String?       @map("special_requests")
+  paymentMethod    String        @default("CASH_ON_ARRIVAL") @map("payment_method")
   roomId           Int           @map("room_id")
   createdAt        DateTime      @default(now()) @map("created_at")
   updatedAt        DateTime      @updatedAt @map("updated_at")

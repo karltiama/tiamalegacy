@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { PayMongoService } from '@/lib/paymongo';
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +15,7 @@ export async function POST(request: NextRequest) {
       numberOfChildren,
       extraAdults,
       specialRequests,
+      paymentMethod,
       roomId,
     } = body;
 
@@ -78,35 +80,44 @@ export async function POST(request: NextRequest) {
         totalAmount: totalAmount,
         status: 'DRAFT',
         specialRequests: specialRequests || null,
+        paymentMethod: paymentMethod === 'online' ? 'ONLINE' : 'CASH_ON_ARRIVAL',
         roomId: parseInt(roomId),
       },
     });
 
-    // Create payment record
-    const payment = await prisma.payment.create({
-      data: {
-        bookingId: booking.id,
-        amount: totalAmount,
-        currency: 'PHP',
-        paymentMethod: 'CASH_ON_ARRIVAL', // Default for now
-        status: 'PENDING',
-      },
-    });
+    // Handle payment based on method
+    if (paymentMethod === 'online') {
+      // For now, redirect to cash payment since online is coming soon
+      return NextResponse.json({
+        error: 'Online payment is coming soon. Please select Cash on Arrival for now.',
+      }, { status: 400 });
+    } else {
+      // Cash on arrival - create payment record and confirm booking
+      const payment = await prisma.payment.create({
+        data: {
+          bookingId: booking.id,
+          amount: totalAmount,
+          currency: 'PHP',
+          paymentMethod: 'CASH_ON_ARRIVAL',
+          status: 'PENDING',
+        },
+      });
 
-    // Update booking status to PENDING_PAYMENT
-    const updatedBooking = await prisma.booking.update({
-      where: { id: booking.id },
-      data: { status: 'PENDING_PAYMENT' },
-      include: {
-        room: true,
-        payments: true,
-      },
-    });
+      // Update booking status to CONFIRMED for cash payments
+      const updatedBooking = await prisma.booking.update({
+        where: { id: booking.id },
+        data: { status: 'CONFIRMED' },
+        include: {
+          room: true,
+          payments: true,
+        },
+      });
 
-    return NextResponse.json({
-      ...updatedBooking,
-      bookingReference: updatedBooking.bookingReference,
-    });
+      return NextResponse.json({
+        ...updatedBooking,
+        bookingReference: updatedBooking.bookingReference,
+      });
+    }
   } catch (error) {
     console.error('Error creating booking:', error);
     return NextResponse.json(
